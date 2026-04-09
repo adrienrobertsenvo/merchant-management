@@ -149,7 +149,7 @@ export default function UnmappedShipmentsTab({ shipments, entities, onAssign }: 
   }, [shipments, search, carrierFilter, originFilter, destFilter]);
 
   const selectedIds = useMemo(() => {
-    if (selection.type === 'all') {
+    if (selection.type === 'exclude') {
       // "Select all" — all filtered rows minus explicit exclusions in selection.ids
       const excluded = selection.ids;
       return filtered.map(s => s.id).filter(id => !excluded.has(id));

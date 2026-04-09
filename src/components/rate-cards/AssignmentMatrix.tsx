@@ -68,7 +68,7 @@ interface MerchantBlock {
   avgMarkup: number; // average markup % across carriers (simulated)
 }
 
-export default function AssignmentMatrix({ entities, rateCards, groups, assignments, onAssign, onRemove, selectedMerchantId, onSelectMerchant, onBatchAssignOpen }: AssignmentMatrixProps) {
+export default function AssignmentMatrix({ entities, rateCards, groups, assignments, onAssign, onRemove, selectedMerchantId: _selectedMerchantId, onSelectMerchant: _onSelectMerchant, onBatchAssignOpen }: AssignmentMatrixProps) {
   const [search, setSearch] = useState('');
   const [merchantFilters, setMerchantFilters] = useState<string[]>([]);
   const [carrierFilters, setCarrierFilters] = useState<CarrierId[]>([]);
@@ -161,20 +161,6 @@ export default function AssignmentMatrix({ entities, rateCards, groups, assignme
           rcNameCounts.set(name, (rcNameCounts.get(name) ?? 0) + 1);
         }
       }
-      const sorted = [...rcNameCounts.entries()].sort((a, b) => b[1] - a[1]);
-      let rateCardSummary = '—';
-      if (sorted.length === 1) {
-        rateCardSummary = sorted[0][0];
-      } else if (sorted.length > 1) {
-        rateCardSummary = `${sorted[0][0]} +${sorted.length - 1}`;
-      }
-
-      // Avg realized markup % across carriers
-      const withMarkup = carrierRows.filter(cr => cr.resolved);
-      const avgMarkup = withMarkup.length > 0
-        ? withMarkup.reduce((sum, cr) => sum + cr.realizedMarkup, 0) / withMarkup.length
-        : 0;
-
       // Apply carrier/rate card filters to the rows themselves
       let filteredRows = carrierRows;
       if (carrierFilters.length > 0) filteredRows = filteredRows.filter(cr => carrierFilters.includes(cr.carrierId));
@@ -245,19 +231,6 @@ export default function AssignmentMatrix({ entities, rateCards, groups, assignme
   const allSelected = merchantBlocks.length > 0 && selectedMerchantIds.size === merchantBlocks.length;
   const someSelected = selectedMerchantIds.size > 0 && !allSelected;
   const allExpanded = expandedMerchants.size === merchantBlocks.length && merchantBlocks.length > 0;
-
-  const openPopover = (
-    e: React.MouseEvent<HTMLElement>,
-    merchantId: string,
-    merchantName: string,
-    carrierId: CarrierId,
-    resolved: ResolvedRateCard | null,
-    candidates: CandidateAssignment[],
-  ) => {
-    e.stopPropagation();
-    setPopoverAnchor(e.currentTarget);
-    setPopoverData({ merchantId, merchantName, carrierId, resolved, candidates });
-  };
 
   return (
     <Box>
@@ -458,8 +431,6 @@ export default function AssignmentMatrix({ entities, rateCards, groups, assignme
 
                   {/* Expanded carrier rows — rendered in the same table for column alignment */}
                   {isExpanded && block.carrierRows.map((cr, crIdx) => {
-                    const isDirect = cr.resolved && !cr.resolved.inherited;
-                    const isOverride = isDirect && cr.candidates.some(c => !c.isWinner && c.inherited);
                     const isLastCarrier = crIdx === block.carrierRows.length - 1;
 
                     return (

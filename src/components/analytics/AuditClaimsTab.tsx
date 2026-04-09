@@ -157,9 +157,10 @@ export default function AuditClaimsTab({ cutoff, filters }: AuditClaimsTabProps)
             <Tooltip
               contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e8ebf0' }}
               labelStyle={{ fontWeight: 600 }}
-              formatter={(value: number, name: string) => {
-                if (name === 'cumRefund') return [`€${value.toLocaleString()}`, 'Cumulative Refund'];
-                return [value, CARRIERS[name as CarrierId]?.label ?? name];
+              formatter={(value: unknown, name: string) => {
+                const v = value as number;
+                if (name === 'cumRefund') return [`€${v.toLocaleString()}`, 'Cumulative Refund'];
+                return [v, CARRIERS[name as CarrierId]?.label ?? name];
               }}
             />
             <Legend verticalAlign="bottom" height={28} formatter={(value: string) => (
@@ -257,7 +258,7 @@ export default function AuditClaimsTab({ cutoff, filters }: AuditClaimsTabProps)
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={{ stroke: '#e8ebf0' }} tickLine={false} />
             <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${v}d`} />
-            <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e8ebf0' }} formatter={(v: number) => [`${v} days`, 'Avg Response']} />
+            <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e8ebf0' }} formatter={(v: unknown) => [`${v} days`, 'Avg Response']} />
             <ReferenceLine y={10} stroke="#dc2626" strokeDasharray="4 4" label={{ value: 'Target 10d', fontSize: 10, fill: '#dc2626', position: 'right' }} />
             <Bar dataKey="days" radius={[3, 3, 0, 0]} barSize={32}>
               {responseBarData.map((entry) => (

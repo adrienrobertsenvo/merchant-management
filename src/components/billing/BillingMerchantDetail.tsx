@@ -176,7 +176,7 @@ export default function BillingMerchantDetail({ merchantId, merchantName, onBack
   }, [shipments, charges]);
 
   const selectedCount = useMemo(() => {
-    if (selection.type === 'all') return filteredShipments.length - selection.ids.size;
+    if (selection.type === 'exclude') return filteredShipments.length - selection.ids.size;
     return selection.ids.size;
   }, [selection, filteredShipments]);
 

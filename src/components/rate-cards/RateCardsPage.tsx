@@ -41,7 +41,7 @@ export default function RateCardsPage({ entities }: RateCardsPageProps) {
   }, []);
 
   // === Assignment operations ===
-  const handleAssign = useCallback((merchantId: string, carrierId: CarrierId, rateCardId: string) => {
+  const handleAssign = useCallback((merchantId: string, carrierId: CarrierId | '*', rateCardId: string) => {
     setAssignments(prev => {
       const filtered = prev.filter(a =>
         !(a.scope.type === 'merchant' && a.scope.merchantId === merchantId && a.carrierId === carrierId)
@@ -62,7 +62,7 @@ export default function RateCardsPage({ entities }: RateCardsPageProps) {
     if (rc && ent) showSnackbar(`Assigned "${rc.name}" to ${ent.name}`);
   }, [rateCards, entities, showSnackbar]);
 
-  const handleRemoveAssignment = useCallback((merchantId: string, carrierId: CarrierId) => {
+  const handleRemoveAssignment = useCallback((merchantId: string, carrierId: CarrierId | '*') => {
     setAssignments(prev => prev.filter(a =>
       !(a.scope.type === 'merchant' && a.scope.merchantId === merchantId && a.carrierId === carrierId)
     ));

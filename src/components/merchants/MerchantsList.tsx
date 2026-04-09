@@ -226,8 +226,8 @@ export default function MerchantsList({ entities, onSelectEntity, onAddMerchant,
     if (sortModel.length > 0) {
       const { field, sort } = sortModel[0];
       result = [...result].sort((a, b) => {
-        const va = (a as Record<string, unknown>)[field];
-        const vb = (b as Record<string, unknown>)[field];
+        const va = (a as unknown as Record<string, unknown>)[field];
+        const vb = (b as unknown as Record<string, unknown>)[field];
         let cmp: number;
         if (typeof va === 'number' && typeof vb === 'number') {
           cmp = va - vb;

@@ -93,12 +93,6 @@ export default function MerchantRateCardsTab({ merchantId }: MerchantRateCardsTa
     }).filter(r => r.buyingRateCard !== null).sort((a, b) => b.shipments - a.shipments);
   }, [merchantId, assignments, carrierShipments, buyAssignments]);
 
-  // Carriers not yet assigned AND that have buy rate cards available
-  const availableCarriers = CARRIER_IDS.filter(cId =>
-    !rows.some(r => r.carrierId === cId) &&
-    mockBuyingRateCards.some(brc => brc.carrierId === cId)
-  );
-
   // Buy rate cards for a given carrier
   const getBuyRateCardsForCarrier = (carrierId: CarrierId) =>
     mockBuyingRateCards.filter(brc => brc.carrierId === carrierId);

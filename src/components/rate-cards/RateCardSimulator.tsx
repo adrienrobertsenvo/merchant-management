@@ -16,9 +16,8 @@ import { mockBuyingRateCards } from '../../data/mockRateCards';
 import { mockRateCards } from '../../data/mockRateCards';
 import { mockBillingEntities } from '../../data/mockMerchants';
 import { mockCarrierShipments } from '../../data/mockMerchants';
-import { CARRIER_IDS, CARRIERS } from '../../constants/rateCardConfig';
-import type { CarrierId, RateCard, BuyingRateCard, PricingZone } from '../../types/rateCard';
-import type { BillingEntity } from '../../types/merchant';
+import { CARRIER_IDS } from '../../constants/rateCardConfig';
+import type { PricingZone } from '../../types/rateCard';
 
 // ── helpers ──
 

@@ -308,7 +308,7 @@ export default function MerchantDetailPage({ merchantId, entities, onEntitiesCha
                     <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={{ stroke: '#e8ebf0' }} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
                     <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e8ebf0' }} labelStyle={{ fontWeight: 600 }}
-                      formatter={(value: number, name: string) => [value, CARRIERS[name as CarrierId]?.label ?? name]} />
+                      formatter={(value: unknown, name: string) => [value as number, CARRIERS[name as CarrierId]?.label ?? name]} />
                     <Legend verticalAlign="bottom" height={28} formatter={(value: string) => <span style={{ fontSize: 11, color: '#6b7280' }}>{CARRIERS[value as CarrierId]?.label ?? value}</span>} />
                     {activeCarrierIds.map((id, i) => (
                       <Bar key={id} dataKey={id} stackId="shipments" fill={CARRIER_CHART_COLORS[id]} radius={i === activeCarrierIds.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]} />
@@ -381,10 +381,11 @@ export default function MerchantDetailPage({ merchantId, entities, onEntitiesCha
                   <YAxis yAxisId="left" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `€${(v / 1000).toFixed(0)}k`} />
                   <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${v}%`} domain={[0, 30]} />
                   <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e8ebf0' }} labelStyle={{ fontWeight: 600 }}
-                    formatter={(value: number, name: string) => {
-                      if (name === 'marginPct') return [`${value}%`, 'Margin %'];
-                      if (name === 'netWin') return [`€${value.toLocaleString()}`, 'Net Win'];
-                      return [`€${value.toLocaleString()}`, name === 'buyingCost' ? 'Buying Cost' : 'Selling Revenue'];
+                    formatter={(value: unknown, name: string) => {
+                      const v = value as number;
+                      if (name === 'marginPct') return [`${v}%`, 'Margin %'];
+                      if (name === 'netWin') return [`€${v.toLocaleString()}`, 'Net Win'];
+                      return [`€${v.toLocaleString()}`, name === 'buyingCost' ? 'Buying Cost' : 'Selling Revenue'];
                     }} />
                   <Legend verticalAlign="bottom" height={28} formatter={(value: string) => {
                     const labels: Record<string, string> = { buyingCost: 'Buying Cost', sellingRevenue: 'Selling Revenue', netWin: 'Net Win', marginPct: 'Margin %' };
@@ -410,7 +411,7 @@ export default function MerchantDetailPage({ merchantId, entities, onEntitiesCha
                     <XAxis dataKey="route" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={{ stroke: '#e8ebf0' }} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `€${(v / 1000).toFixed(0)}k`} />
                     <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e8ebf0' }} labelStyle={{ fontWeight: 600 }}
-                      formatter={(value: number, name: string) => { const l: Record<string, string> = { buyingCost: 'Buying Cost', sellingRevenue: 'Selling Revenue', netWin: 'Net Win' }; return [`€${value.toLocaleString()}`, l[name] ?? name]; }} />
+                      formatter={(value: unknown, name: string) => { const l: Record<string, string> = { buyingCost: 'Buying Cost', sellingRevenue: 'Selling Revenue', netWin: 'Net Win' }; return [`€${(value as number).toLocaleString()}`, l[name] ?? name]; }} />
                     <Legend verticalAlign="bottom" height={28} formatter={(value: string) => { const l: Record<string, string> = { buyingCost: 'Buying Cost', sellingRevenue: 'Selling Revenue', netWin: 'Net Win' }; return <span style={{ fontSize: 11, color: '#6b7280' }}>{l[value] ?? value}</span>; }} />
                     <Bar dataKey="buyingCost" fill="#3b82f6" radius={[3, 3, 0, 0]} barSize={14} />
                     <Bar dataKey="sellingRevenue" fill="#10b981" radius={[3, 3, 0, 0]} barSize={14} />

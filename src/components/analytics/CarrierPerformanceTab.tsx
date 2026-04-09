@@ -159,9 +159,10 @@ export default function CarrierPerformanceTab({ cutoff, filters }: CarrierPerfor
             <Tooltip
               contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e8ebf0' }}
               labelStyle={{ fontWeight: 600 }}
-              formatter={(value: number, name: string) => {
-                if (name === 'avg') return [`${value.toFixed(1)}d`, 'Weighted Avg'];
-                return [`${value.toFixed(1)}d`, CARRIERS[name as CarrierId]?.label ?? name];
+              formatter={(value: unknown, name: string) => {
+                const v = value as number;
+                if (name === 'avg') return [`${v.toFixed(1)}d`, 'Weighted Avg'];
+                return [`${v.toFixed(1)}d`, CARRIERS[name as CarrierId]?.label ?? name];
               }}
             />
             <Legend verticalAlign="bottom" height={28} formatter={(value: string) => (
@@ -186,7 +187,7 @@ export default function CarrierPerformanceTab({ cutoff, filters }: CarrierPerfor
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
               <XAxis type="number" domain={[80, 100]} tick={{ fontSize: 11, fill: '#9ca3af' }} tickFormatter={(v: number) => `${v}%`} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="label" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} width={80} />
-              <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e8ebf0' }} formatter={(v: number) => [`${v}%`, 'On-Time']} />
+              <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e8ebf0' }} formatter={(v: unknown) => [`${v}%`, 'On-Time']} />
               <ReferenceLine x={92} stroke="#dc2626" strokeDasharray="4 4" label={{ value: 'Target 92%', fontSize: 10, fill: '#dc2626', position: 'top' }} />
               <Bar dataKey="onTime" radius={[0, 3, 3, 0]} barSize={16}>
                 {onTimeBarData.map((entry) => (
@@ -250,7 +251,7 @@ export default function CarrierPerformanceTab({ cutoff, filters }: CarrierPerfor
             <Tooltip
               contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e8ebf0' }}
               labelStyle={{ fontWeight: 600 }}
-              formatter={(value: number, name: string) => [`${value.toFixed(1)}%`, CARRIERS[name as CarrierId]?.label ?? name]}
+              formatter={(value: unknown, name: string) => [`${(value as number).toFixed(1)}%`, CARRIERS[name as CarrierId]?.label ?? name]}
             />
             <Legend verticalAlign="bottom" height={28} formatter={(value: string) => (
               <span style={{ fontSize: 11, color: '#6b7280' }}>{CARRIERS[value as CarrierId]?.label ?? value}</span>

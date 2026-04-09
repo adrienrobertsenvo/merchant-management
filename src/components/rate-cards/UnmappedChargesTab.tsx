@@ -1,20 +1,14 @@
 import { useState, useMemo, useCallback } from 'react';
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
 import Autocomplete from '@mui/material/Autocomplete';
 import SearchIcon from '@mui/icons-material/Search';
-import EditIcon from '@mui/icons-material/Edit';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import LinkIcon from '@mui/icons-material/Link';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import CarrierChip from './CarrierChip';
 import RateCardDetailDrawer from '../merchants/RateCardDetailDrawer';
@@ -46,7 +40,7 @@ function parsePercentage(value: string): number | null {
 }
 
 export default function UnmappedChargesTab({ rateCards, onEditSurcharges }: UnmappedChargesTabProps) {
-  const [charges, setCharges] = useState<UnmappedCharge[]>(mockUnmappedCharges);
+  const [charges] = useState<UnmappedCharge[]>(mockUnmappedCharges);
   const [search, setSearch] = useState('');
   const [carrierFilter, setCarrierFilter] = useState<CarrierId | ''>('');
   const [chargeNameFilter, setChargeNameFilter] = useState('');
@@ -94,29 +88,6 @@ export default function UnmappedChargesTab({ rateCards, onEditSurcharges }: Unma
     }
     return null;
   }, [mappedCharges, rateCards]);
-
-  const getSellUnit = useCallback((charge: UnmappedCharge): { display: string; value: number | null } => {
-    const mapping = getMapping(charge);
-    if (!mapping) return { display: '—', value: null };
-
-    if (mapping.surchargeName === 'Base Product') {
-      // Base product — use first zone's lowest tier price
-      const firstZone = mapping.rateCard.pricing?.zones?.[0];
-      if (firstZone?.tiers.length) {
-        const lowest = Math.min(...firstZone.tiers.map(t => t.price));
-        return { display: `from €${lowest.toFixed(2)}`, value: null };
-      }
-      return { display: '—', value: null };
-    }
-    const surcharge = mapping.rateCard.pricing?.surcharges.find(s => s.name === mapping.surchargeName);
-    if (!surcharge) return { display: '—', value: null };
-
-    const fixed = parseFixedEuro(surcharge.value);
-    if (fixed !== null) return { display: surcharge.value, value: fixed };
-    const pct = parsePercentage(surcharge.value);
-    if (pct !== null) return { display: surcharge.value, value: null };
-    return { display: surcharge.value, value: null };
-  }, [getMapping]);
 
   const getSellTotal = useCallback((charge: UnmappedCharge): number | null => {
     const mapping = getMapping(charge);

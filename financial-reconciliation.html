@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Senvo - Financial Reconciliation</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue-700: #1d4ed8;
+  --blue-800: #1e40af;
+  --blue-100: #dbeafe;
+  --blue-50: #eff6ff;
+  --slate-900: #0f172a;
+  --slate-700: #334155;
+  --slate-600: #475569;
+  --slate-500: #64748b;
+  --slate-400: #94a3b8;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50: #f8fafc;
+  --green-700: #15803d;
+  --green-600: #16a34a;
+  --green-100: #dcfce7;
+  --green-50: #f0fdf4;
+  --amber-600: #d97706;
+  --amber-100: #fef3c7;
+  --red-600: #dc2626;
+  --red-100: #fee2e2;
+  --red-50: #fef2f2;
+  --white: #ffffff;
+  --font: 'Plus Jakarta Sans', sans-serif;
+  --header-h: 56px;
+  --sidebar-w: 220px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
+}
+
+html, body { height: 100%; font-family: var(--font); font-size: 13px; color: var(--slate-900); background: var(--slate-100); }
+
+/* ─── HEADER ─────────────────────────────────────────── */
+.app-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--header-h);
+  background: var(--white);
+  border-bottom: 1px solid var(--slate-200);
+  display: flex; align-items: center; gap: 0;
+}
+.hdr-left {
+  display: flex; align-items: center; gap: 12px;
+  width: var(--sidebar-w); padding: 0 16px;
+  border-right: 1px solid var(--slate-200);
+  height: 100%;
+  flex-shrink: 0;
+}
+.menu-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--slate-500); padding: 4px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.menu-btn:hover { background: var(--slate-100); }
+.logo {
+  font-size: 20px; font-weight: 700; color: var(--slate-900);
+  letter-spacing: -0.5px;
+}
+.hdr-nav { display: flex; gap: 0; margin-left: 4px; }
+.hdr-nav a {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
+  text-decoration: none; padding: 4px 10px;
+  color: var(--slate-400); cursor: pointer; border-radius: 4px;
+  transition: color .15s;
+}
+.hdr-nav a.active {
+  color: var(--blue-700);
+  border-bottom: 2px solid var(--blue-700);
+}
+.hdr-center {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 20px; flex: 1;
+}
+.toggle-wrap { display: flex; align-items: center; gap: 8px; }
+.toggle-label { font-size: 12.5px; font-weight: 500; color: var(--slate-700); }
+.toggle {
+  width: 40px; height: 22px; background: var(--blue-700); border-radius: 11px;
+  position: relative; cursor: pointer; flex-shrink: 0;
+}
+.toggle::after {
+  content: ''; position: absolute; top: 3px; right: 3px;
+  width: 16px; height: 16px; background: white; border-radius: 50%;
+  transition: right .15s;
+}
+.pilot-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--blue-50); border: 1px solid var(--blue-100);
+  color: var(--blue-700); font-size: 12px; font-weight: 500;
+  padding: 4px 12px; border-radius: 20px;
+}
+.hdr-right {
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 20px;
+}
+.tenant-select {
+  display: flex; flex-direction: column;
+  border: 1px solid var(--slate-200); border-radius: 6px;
+  padding: 4px 10px; cursor: pointer; min-width: 140px;
+  background: white; position: relative;
+}
+.tenant-select-label { font-size: 10px; color: var(--slate-400); font-weight: 500; }
+.tenant-select-value { font-size: 13px; font-weight: 600; color: var(--slate-900); display: flex; align-items: center; gap: 4px; }
+.user-chip { display: flex; align-items: center; gap: 10px; }
+.user-info { text-align: right; }
+.user-name { font-size: 12px; font-weight: 600; color: var(--slate-900); }
+.user-email { font-size: 11px; color: var(--slate-500); }
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--blue-700); color: white;
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ─── LAYOUT ─────────────────────────────────────────── */
+.app-layout {
+  display: flex;
+  padding-top: var(--header-h);
+  min-height: 100vh;
+}
+
+/* ─── SIDEBAR ────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  background: var(--white);
+  border-right: 1px solid var(--slate-200);
+  display: flex; flex-direction: column;
+  position: fixed; top: var(--header-h); bottom: 0; left: 0;
+  overflow-y: auto;
+}
+.sidebar-nav { flex: 1; padding: 12px 0; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 16px; cursor: pointer;
+  color: var(--slate-600); font-size: 13px; font-weight: 500;
+  border-radius: 0; transition: all .15s;
+  text-decoration: none;
+}
+.nav-item:hover { background: var(--slate-50); color: var(--slate-900); }
+.nav-item.active {
+  background: var(--blue-50); color: var(--blue-700);
+}
+.nav-item svg { flex-shrink: 0; opacity: .7; }
+.nav-item.active svg { opacity: 1; }
+.nav-divider { height: 1px; background: var(--slate-200); margin: 8px 16px; }
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--slate-200);
+}
+.sidebar-footer-links {
+  font-size: 10.5px; color: var(--slate-400); line-height: 1.8;
+}
+.sidebar-footer-links a { color: var(--slate-400); text-decoration: none; }
+.sidebar-footer-links a:hover { color: var(--slate-600); }
+.sidebar-copy { font-size: 10.5px; color: var(--slate-400); margin-top: 6px; }
+
+/* ─── MAIN ───────────────────────────────────────────── */
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-w);
+  padding: 28px 32px 48px;
+  min-width: 0;
+}
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+}
+.page-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 22px; font-weight: 700; color: var(--slate-900);
+}
+.refresh-btn {
+  background: none; border: none; cursor: pointer; color: var(--slate-400);
+  padding: 2px; border-radius: 50%; transition: all .2s;
+  display: flex; align-items: center;
+}
+.refresh-btn:hover { color: var(--blue-700); transform: rotate(180deg); }
+.page-actions { display: flex; gap: 10px; align-items: center; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all .15s; font-family: var(--font);
+  white-space: nowrap;
+}
+.btn-outline {
+  background: white; border: 1px solid var(--slate-200);
+  color: var(--slate-700);
+}
+.btn-outline:hover { border-color: var(--slate-400); background: var(--slate-50); }
+.btn-primary {
+  background: var(--blue-700); border: 1px solid var(--blue-700);
+  color: white;
+}
+.btn-primary:hover { background: var(--blue-800); border-color: var(--blue-800); }
+
+/* ─── TABS ───────────────────────────────────────────── */
+.tabs-bar {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--slate-200);
+  margin-bottom: 20px;
+}
+.tab-btn {
+  padding: 10px 18px; font-size: 13px; font-weight: 600;
+  color: var(--slate-500); background: none; border: none;
+  border-bottom: 2px solid transparent; cursor: pointer;
+  transition: all .15s; font-family: var(--font);
+  display: flex; align-items: center; gap: 7px;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--slate-700); }
+.tab-btn.active { color: var(--blue-700); border-bottom-color: var(--blue-700); }
+.tab-count {
+  font-size: 11px; font-weight: 700; padding: 1px 7px;
+  border-radius: 10px; background: var(--slate-100); color: var(--slate-600);
+}
+.tab-btn.active .tab-count { background: var(--blue-100); color: var(--blue-700); }
+.tab-btn.tab-warn .tab-count { background: var(--amber-100); color: var(--amber-600); }
+.tab-btn.tab-error .tab-count { background: var(--red-100); color: var(--red-600); }
+
+/* ─── SUMMARY CARDS ──────────────────────────────────── */
+.summary-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px; margin-bottom: 20px;
+}
+.card {
+  background: white; border: 1px solid var(--slate-200);
+  border-radius: 8px; padding: 20px 24px;
+  box-shadow: var(--shadow-sm);
+}
+.card-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  color: var(--blue-700); text-transform: uppercase; margin-bottom: 10px;
+}
+.card-value {
+  font-size: 28px; font-weight: 700; color: var(--blue-800);
+  letter-spacing: -0.5px; line-height: 1;
+}
+.card-sub { font-size: 12px; color: var(--slate-500); margin-top: 6px; }
+
+/* ─── FILTER BAR ─────────────────────────────────────── */
+.filter-bar {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.search-wrap {
+  position: relative; display: flex; align-items: center;
+}
+.search-wrap svg {
+  position: absolute; left: 10px; color: var(--slate-400); pointer-events: none;
+}
+.search-input {
+  border: 1px solid var(--slate-200); border-radius: 6px;
+  padding: 7px 12px 7px 34px; font-size: 13px; font-family: var(--font);
+  color: var(--slate-900); background: white; outline: none; width: 220px;
+}
+.search-input:focus { border-color: var(--blue-700); box-shadow: 0 0 0 3px var(--blue-50); }
+.search-input::placeholder { color: var(--slate-400); }
+.period-select {
+  border: 1px solid var(--slate-200); border-radius: 6px;
+  padding: 7px 30px 7px 12px; font-size: 13px; font-family: var(--font);
+  color: var(--slate-700); background: white; outline: none;
+  appearance: none; cursor: pointer; min-width: 160px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+  position: relative;
+}
+.period-wrap {
+  position: relative; display: flex; align-items: center;
+}
+.period-info {
+  position: absolute; left: 130px;
+  color: var(--slate-400); pointer-events: none; z-index: 1;
+}
+.filter-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border: 1px solid var(--slate-200);
+  border-radius: 6px; background: white; color: var(--slate-600);
+  font-size: 13px; font-weight: 500; font-family: var(--font);
+  cursor: pointer; transition: all .15s;
+}
+.filter-btn:hover { border-color: var(--slate-400); }
+.filter-btn svg { color: var(--blue-700); }
+
+/* ─── TABLE ──────────────────────────────────────────── */
+.table-wrap {
+  background: white; border: 1px solid var(--slate-200);
+  border-radius: 8px; overflow: hidden; box-shadow: var(--shadow-sm);
+}
+.data-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.data-table th {
+  text-align: left; padding: 10px 14px;
+  font-size: 12px; font-weight: 700; color: var(--slate-600);
+  background: var(--slate-50); border-bottom: 1px solid var(--slate-200);
+  white-space: nowrap; user-select: none; cursor: pointer;
+}
+.data-table th:hover { color: var(--slate-900); }
+.data-table td {
+  padding: 11px 14px; border-bottom: 1px solid var(--slate-100);
+  color: var(--slate-700); vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover { background: var(--slate-50); }
+.data-table .col-settings { width: 36px; text-align: center; }
+.settings-icon { color: var(--slate-400); cursor: pointer; }
+.settings-icon:hover { color: var(--slate-700); }
+
+/* ─── BADGES ─────────────────────────────────────────── */
+.carrier-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 26px; min-width: 26px; padding: 0 8px;
+  border-radius: 13px; font-size: 11px; font-weight: 700; letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.carrier-dhl { background: #FFCC00; color: #1a1a1a; }
+.carrier-fedex { background: #4D148C; color: #FF6600; }
+.carrier-ups { background: #351C15; color: #FFBF00; }
+.carrier-dpd { background: #DC0032; color: white; }
+.carrier-royal-mail { background: #E60000; color: white; }
+.carrier-gls { background: #233066; color: white; }
+.carrier-procarrier { background: #475569; color: white; }
+.carrier-dhlecom { background: #D40511; color: white; }
+.carrier-easypost { background: #4338CA; color: white; }
+.carrier-expeditors { background: #00539B; color: white; }
+.carrier-inpost { background: #E30613; color: white; }
+.carrier-parcelhub { background: #0EA5E9; color: white; }
+.carrier-royalmail { background: #E60000; color: white; }
+.carrier-opsgenie { background: #7C3AED; color: white; }
+.carrier-default { background: var(--slate-200); color: var(--slate-700); }
+
+.status-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;
+}
+.status-matched { color: var(--green-600); border: 1px solid #86efac; background: var(--green-50); }
+.status-discrepancy { color: var(--amber-600); border: 1px solid #fcd34d; background: var(--amber-100); }
+.status-missing { color: var(--red-600); border: 1px solid #fca5a5; background: var(--red-50); }
+.status-accepted { color: var(--slate-500); border: 1px solid var(--slate-200); background: var(--slate-50); }
+
+.delta-positive { color: var(--red-600); font-weight: 600; }
+.delta-negative { color: var(--blue-700); font-weight: 600; }
+.delta-tiny { color: var(--amber-600); font-weight: 600; }
+
+.status-icon { font-size: 18px; }
+
+/* ─── ACTION BUTTONS ─────────────────────────────────── */
+.action-wrap { display: flex; align-items: center; gap: 6px; }
+.btn-action {
+  padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: 600;
+  cursor: pointer; border: 1px solid; font-family: var(--font);
+  transition: all .15s; white-space: nowrap;
+}
+.btn-accept { border-color: #86efac; color: var(--green-700); background: var(--green-50); }
+.btn-accept:hover { background: var(--green-100); }
+.btn-upload { border-color: var(--blue-100); color: var(--blue-700); background: var(--blue-50); }
+.btn-upload:hover { background: var(--blue-100); }
+.btn-warn { border-color: #fcd34d; color: var(--amber-600); background: var(--amber-100); }
+.btn-warn:hover { background: #fef08a; }
+.btn-more {
+  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--slate-200); border-radius: 5px;
+  background: white; cursor: pointer; color: var(--slate-500);
+  font-size: 16px; font-weight: 700; transition: all .15s;
+  font-family: var(--font);
+}
+.btn-more:hover { background: var(--slate-100); border-color: var(--slate-400); }
+
+/* ─── DROPDOWN MENU ──────────────────────────────────── */
+.dropdown-wrap { position: relative; }
+.dropdown-menu {
+  position: absolute; right: 0; top: calc(100% + 4px);
+  background: white; border: 1px solid var(--slate-200);
+  border-radius: 8px; box-shadow: var(--shadow-md);
+  min-width: 190px; z-index: 200; overflow: hidden;
+  display: none;
+}
+.dropdown-menu.open { display: block; }
+.dropdown-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px; font-size: 12.5px; font-weight: 500;
+  color: var(--slate-700); cursor: pointer; transition: background .1s;
+}
+.dropdown-item:hover { background: var(--slate-50); }
+.dropdown-item.danger { color: var(--red-600); }
+.dropdown-item.danger:hover { background: var(--red-50); }
+.dropdown-divider { height: 1px; background: var(--slate-200); }
+
+/* ─── PAGINATION ─────────────────────────────────────── */
+.pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border-top: 1px solid var(--slate-200);
+  background: white;
+}
+.page-info { font-size: 12.5px; color: var(--slate-500); font-weight: 500; }
+.page-controls { display: flex; gap: 4px; align-items: center; }
+.page-btn {
+  width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--slate-200); border-radius: 5px; background: white;
+  cursor: pointer; font-size: 12px; color: var(--slate-600); font-family: var(--font);
+  font-weight: 500; transition: all .15s;
+}
+.page-btn:hover { border-color: var(--blue-700); color: var(--blue-700); }
+.page-btn.active { background: var(--blue-700); border-color: var(--blue-700); color: white; }
+.page-btn:disabled { opacity: .4; cursor: default; }
+
+/* ─── MODAL ──────────────────────────────────────────── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(15,23,42,.45); backdrop-filter: blur(2px);
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white; border-radius: 12px; width: 480px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden;
+  animation: modal-in .2s ease;
+}
+@keyframes modal-in {
+  from { transform: scale(.96) translateY(8px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid var(--slate-200);
+}
+.modal-title { font-size: 16px; font-weight: 700; color: var(--slate-900); }
+.modal-close {
+  width: 28px; height: 28px; border-radius: 6px; background: none; border: none;
+  cursor: pointer; color: var(--slate-400); font-size: 18px;
+  display: flex; align-items: center; justify-content: center; line-height: 1;
+}
+.modal-close:hover { background: var(--slate-100); color: var(--slate-700); }
+.modal-body { padding: 22px; }
+.modal-detail-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 8px 0; border-bottom: 1px solid var(--slate-100);
+}
+.modal-detail-row:last-child { border-bottom: none; }
+.modal-detail-key { font-size: 12px; font-weight: 600; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.04em; }
+.modal-detail-val { font-size: 13px; font-weight: 600; color: var(--slate-900); text-align: right; }
+.modal-note {
+  margin-top: 16px; padding: 14px; background: var(--amber-100);
+  border-radius: 8px; border-left: 3px solid var(--amber-600);
+}
+.modal-note-text { font-size: 12.5px; color: #78350f; font-weight: 500; }
+.modal-actions-group {
+  margin-top: 16px; display: flex; flex-direction: column; gap: 8px;
+}
+.modal-action-btn {
+  width: 100%; padding: 10px 16px; border-radius: 7px; font-size: 13px;
+  font-weight: 600; cursor: pointer; text-align: left; transition: all .15s;
+  font-family: var(--font); border: 1px solid;
+  display: flex; align-items: center; gap: 10px;
+}
+.modal-action-btn.primary { background: var(--blue-700); border-color: var(--blue-700); color: white; }
+.modal-action-btn.primary:hover { background: var(--blue-800); }
+.modal-action-btn.secondary { background: white; border-color: var(--slate-200); color: var(--slate-700); }
+.modal-action-btn.secondary:hover { background: var(--slate-50); border-color: var(--slate-400); }
+.modal-action-btn.success { background: var(--green-50); border-color: #86efac; color: var(--green-700); }
+.modal-action-btn.success:hover { background: var(--green-100); }
+.modal-action-btn.danger { background: var(--red-50); border-color: #fca5a5; color: var(--red-600); }
+.modal-action-btn.danger:hover { background: var(--red-100); }
+.modal-footer {
+  padding: 14px 22px; border-top: 1px solid var(--slate-200);
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+
+/* ─── TOAST ──────────────────────────────────────────── */
+.toast-wrap {
+  position: fixed; bottom: 24px; right: 24px; z-index: 1000;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.toast {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--slate-900); color: white;
+  padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+  box-shadow: var(--shadow-md); min-width: 260px;
+  animation: toast-in .3s ease;
+}
+@keyframes toast-in {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.toast.success { background: var(--green-600); }
+.toast.warning { background: var(--amber-600); }
+
+/* ─── MISC ───────────────────────────────────────────── */
+.external-link-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--blue-700); padding: 2px; border-radius: 3px;
+}
+.external-link-btn:hover { color: var(--blue-800); }
+.text-mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; }
+.amount-col { font-weight: 600; color: var(--slate-800); }
+.no-data {
+  text-align: center; padding: 48px 24px;
+  color: var(--slate-400); font-size: 14px;
+}
+
+.badge-table-icon {
+  display: flex; align-items: center; gap: 4px;
+}
+.icon-btn {
+  background: none; border: 1px solid var(--slate-200);
+  border-radius: 4px; padding: 2px 5px; cursor: pointer;
+  color: var(--slate-400); transition: all .15s;
+}
+.icon-btn:hover { color: var(--slate-700); border-color: var(--slate-400); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ HEADER ══════════════════ -->
+<header class="app-header">
+  <div class="hdr-left">
+    <button class="menu-btn">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="logo">senvo</div>
+  </div>
+  <div class="hdr-center"></div>
+  <div class="hdr-right">
+    <div class="user-chip">
+      <div class="user-info">
+        <div class="user-name">Senvo</div>
+        <div class="user-email">adrien.robert@senvo.de</div>
+      </div>
+      <div class="avatar">A</div>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════ LAYOUT ══════════════════ -->
+<div class="app-layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <nav class="sidebar-nav">
+      <a class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Search Shipments
+      </a>
+      <a class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Cost Documents
+      </a>
+      <a class="nav-item active">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Financial Reconciliation
+      </a>
+      <a class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/></svg>
+        Audits
+      </a>
+      <a class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Audited Invoices
+      </a>
+      <a class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Claims &amp; Refunds
+      </a>
+      <a class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Data Exports
+      </a>
+      <div class="nav-divider"></div>
+      <a class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Merchants
+      </a>
+      <a class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Carriers
+      </a>
+      <a class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        Data Sources
+      </a>
+      <a class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        Settings
+      </a>
+      <div class="nav-divider"></div>
+      <a class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Send Feedback
+      </a>
+      <a class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        Copy URL
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-links">
+        <a href="#">Impressum</a> • <a href="#">Contact</a> •<br>
+        <a href="#">Privacy Policy</a> • <a href="#">Terms of Service</a>
+      </div>
+      <div class="sidebar-copy">© Senvo GmbH 2026</div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="main-content">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div class="page-title">
+        Financial Reconciliation
+        <button class="refresh-btn" onclick="showToast('Data refreshed','success')">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </button>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-outline" onclick="showToast('Export started…')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export Data
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <button class="btn btn-primary" onclick="showToast('Upload dialog opened')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-bar">
+      <button class="tab-btn active" data-tab="0" onclick="switchTab(0)">
+        Matched <span class="tab-count">2,467</span>
+      </button>
+      <button class="tab-btn tab-warn" data-tab="1" onclick="switchTab(1)">
+        Value Discrepancy <span class="tab-count">78</span>
+      </button>
+      <button class="tab-btn tab-error" data-tab="2" onclick="switchTab(2)">
+        Missing from Senvo <span class="tab-count">47</span>
+      </button>
+      <button class="tab-btn tab-error" data-tab="3" onclick="switchTab(3)">
+        Missing from Accounting  <span class="tab-count">312</span>
+      </button>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="summary-cards" id="summary-cards"></div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" id="search-input" placeholder="Invoice Number" oninput="filterTable()" />
+      </div>
+      <div class="period-wrap">
+        <select class="period-select" id="period-select" onchange="filterTable()">
+          <option>Last 12 Months</option>
+          <option>Last 6 Months</option>
+          <option>Last 3 Months</option>
+          <option>This Month</option>
+          <option>Custom Range</option>
+        </select>
+      </div>
+      <button class="filter-btn">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        Filters
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table class="data-table" id="data-table">
+        <thead id="table-head"></thead>
+        <tbody id="table-body"></tbody>
+      </table>
+      <div class="pagination" id="pagination"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════════ ACTION MODAL ══════════════════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Action</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ──────────────────────────────────────────────
+// DATA
+// ──────────────────────────────────────────────
+
+const TABS = [
+  {
+    id: 'reconciled',
+    label: 'Reconciled',
+    cards: [
+      { label: 'Reconciled Invoices', value: '2,467', sub: 'Matched across both systems' },
+      { label: 'Total Reconciled Amount', value: '€1,847,332', sub: 'QB gross = Senvo gross' },
+      { label: 'Match Rate', value: '96.3%', sub: 'Of all QB invoices' },
+    ],
+    columns: [
+      { key: 'date', label: 'Document Date', sortable: true },
+      { key: 'invoice', label: 'Invoice Number', sortable: true },
+      { key: 'carrier', label: 'Carrier', sortable: true },
+      { key: 'account', label: 'Account Number', sortable: false },
+      { key: 'type', label: 'Document Type', sortable: false },
+      { key: 'qbNet', label: 'QB Net', sortable: true },
+      { key: 'qbGross', label: 'QB Total', sortable: true },
+      { key: 'currency', label: 'Currency', sortable: false },
+      { key: 'shipments', label: 'Shipments', sortable: true },
+      { key: 'status', label: 'Match', sortable: false },
+      { key: 'processedAt', label: 'Processed At', sortable: true },
+      { key: '_settings', label: '', sortable: false },
+    ],
+    rows: [
+      { date:'02/12/2025', invoice:'AVB1388511', carrier:'DHL', account:'953638253', type:'Invoice', qbNet:287.93, qbGross:287.93, currency:'EUR', shipments:5, status:'matched', processedAt:'08/04/2026' },
+      { date:'03/12/2025', invoice:'AVB1390105', carrier:'DHL', account:'953638253', type:'Invoice', qbNet:165.33, qbGross:165.33, currency:'EUR', shipments:2, status:'matched', processedAt:'08/04/2026' },
+      { date:'04/12/2025', invoice:'AVB1391732', carrier:'DHL', account:'953638253', type:'Invoice', qbNet:251.66, qbGross:251.66, currency:'EUR', shipments:3, status:'matched', processedAt:'08/04/2026' },
+      { date:'05/12/2025', invoice:'AVB1394043', carrier:'DHL', account:'953638253', type:'Invoice', qbNet:332.40, qbGross:332.40, currency:'EUR', shipments:7, status:'matched', processedAt:'08/04/2026' },
+      { date:'08/12/2025', invoice:'AVB1396914', carrier:'DHL', account:'953638253', type:'Invoice', qbNet:341.21, qbGross:341.21, currency:'EUR', shipments:4, status:'matched', processedAt:'08/04/2026' },
+      { date:'08/12/2025', invoice:'LONIR03943391', carrier:'DHL', account:'953638253', type:'Invoice', qbNet:8103.53, qbGross:8103.53, currency:'EUR', shipments:312, status:'matched', processedAt:'08/04/2026' },
+      { date:'08/12/2025', invoice:'LONIR03943555', carrier:'DHL', account:'953638253', type:'Invoice', qbNet:9727.29, qbGross:9727.29, currency:'EUR', shipments:408, status:'matched', processedAt:'08/04/2026' },
+      { date:'08/12/2025', invoice:'LONIR03943556', carrier:'DHL', account:'953638253', type:'Invoice', qbNet:15630.53, qbGross:15630.53, currency:'EUR', shipments:521, status:'matched', processedAt:'08/04/2026' },
+      { date:'08/12/2025', invoice:'LONR010374635', carrier:'DHL', account:'953638253', type:'Invoice', qbNet:994.41, qbGross:1193.52, currency:'EUR', shipments:18, status:'matched', processedAt:'08/04/2026' },
+      { date:'08/12/2025', invoice:'LONR010374757', carrier:'DHL', account:'953638253', type:'Invoice', qbNet:66.88, qbGross:66.88, currency:'EUR', shipments:1, status:'matched', processedAt:'08/04/2026' },
+      { date:'02/12/2025', invoice:'65598605', carrier:'UPS', account:'X500Y8', type:'Invoice', qbNet:4429.19, qbGross:4429.19, currency:'EUR', shipments:21, status:'matched', processedAt:'08/04/2026' },
+      { date:'02/12/2025', invoice:'65598606', carrier:'UPS', account:'X500Y8', type:'Invoice', qbNet:20658.19, qbGross:21191.17, currency:'EUR', shipments:945, status:'matched', processedAt:'08/04/2026' },
+      { date:'01/12/2025', invoice:'UKL057488', carrier:'ProCarrier', account:'Pangaia C/O Swap', type:'Invoice', qbNet:297.89, qbGross:297.89, currency:'EUR', shipments:125, status:'matched', processedAt:'08/04/2026' },
+      { date:'01/12/2025', invoice:'UKL057490', carrier:'ProCarrier', account:'Swap C/o Marrrkt', type:'Invoice', qbNet:159.47, qbGross:159.47, currency:'EUR', shipments:50, status:'matched', processedAt:'08/04/2026' },
+      { date:'08/12/2025', invoice:'LHR172638', carrier:'FedEx', account:'UK1', type:'Invoice', qbNet:68061.97, qbGross:68061.97, currency:'EUR', shipments:2840, status:'matched', processedAt:'08/04/2026' },
+    ]
+  },
+  {
+    id: 'discrepancy',
+    label: 'Discrepancy',
+    cards: [
+      { label: 'Discrepancies', value: '78', sub: 'Invoices with amount mismatch' },
+      { label: 'Total Delta', value: '€14,239', sub: 'Sum of all differences' },
+      { label: 'Avg Delta %', value: '2.1%', sub: 'Relative to QB amount' },
+    ],
+    columns: [
+      { key: 'date', label: 'Document Date', sortable: true },
+      { key: 'invoice', label: 'Invoice Number', sortable: true },
+      { key: 'carrier', label: 'Carrier', sortable: true },
+      { key: 'account', label: 'Account', sortable: false },
+      { key: 'qbGross', label: 'QB Total', sortable: true },
+      { key: 'senvoGross', label: 'Senvo Total', sortable: true },
+      { key: 'delta', label: 'Delta', sortable: true },
+      { key: 'deltaType', label: 'Type', sortable: false },
+      { key: 'currency', label: 'Currency', sortable: false },
+      { key: 'actions', label: 'Actions', sortable: false },
+    ],
+    rows: [
+      { date:'11/12/2025', invoice:'AVB1404646', carrier:'DHL', account:'953638253', qbGross:277.30, senvoGross:0, delta:277.30, deltaType:'missing-amount', currency:'EUR', _status:'pending' },
+      { date:'09/02/2026', invoice:'AVB1489309', carrier:'DHL', account:'953638253', qbGross:1260.53, senvoGross:0, delta:1260.53, deltaType:'missing-amount', currency:'EUR', _status:'pending' },
+      { date:'09/03/2026', invoice:'AVB1535844', carrier:'DHL', account:'953638253', qbGross:473.44, senvoGross:0, delta:473.44, deltaType:'missing-amount', currency:'EUR', _status:'pending' },
+      { date:'12/03/2026', invoice:'AVB1543041', carrier:'DHL', account:'953638253', qbGross:938.52, senvoGross:0, delta:938.52, deltaType:'missing-amount', currency:'EUR', _status:'pending' },
+      { date:'08/12/2025', invoice:'LHR172638', carrier:'FedEx', account:'UK1', qbGross:68061.97, senvoGross:68062.13, delta:-0.16, deltaType:'rounding', currency:'EUR', _status:'pending' },
+      { date:'05/01/2026', invoice:'LHR173425', carrier:'FedEx', account:'UK1', qbGross:41032.40, senvoGross:41032.69, delta:-0.29, deltaType:'rounding', currency:'EUR', _status:'pending' },
+      { date:'05/02/2026', invoice:'LHR175755', carrier:'FedEx', account:'UK1', qbGross:27723.95, senvoGross:27724.20, delta:-0.25, deltaType:'rounding', currency:'EUR', _status:'pending' },
+      { date:'04/03/2026', invoice:'LHR176861', carrier:'FedEx', account:'UK1', qbGross:53037.20, senvoGross:53037.39, delta:-0.19, deltaType:'rounding', currency:'EUR', _status:'pending' },
+      { date:'15/12/2025', invoice:'UKL058683', carrier:'ProCarrier', account:'Swap Commerce', qbGross:737.11, senvoGross:737.10, delta:0.01, deltaType:'rounding', currency:'EUR', _status:'pending' },
+      { date:'15/12/2025', invoice:'UKL058684', carrier:'ProCarrier', account:'Swap Commerce', qbGross:620.79, senvoGross:620.78, delta:0.01, deltaType:'rounding', currency:'EUR', _status:'pending' },
+      { date:'15/12/2025', invoice:'UKL058687', carrier:'ProCarrier', account:'Swap Commerce', qbGross:1575.89, senvoGross:1575.88, delta:0.01, deltaType:'rounding', currency:'EUR', _status:'pending' },
+      { date:'24/12/2025', invoice:'UKL059373', carrier:'ProCarrier', account:'Swap Commerce', qbGross:5336.07, senvoGross:5336.08, delta:-0.01, deltaType:'rounding', currency:'EUR', _status:'pending' },
+      { date:'30/12/2025', invoice:'UKL059691', carrier:'ProCarrier', account:'Swap Commerce', qbGross:579.71, senvoGross:579.70, delta:0.01, deltaType:'rounding', currency:'EUR', _status:'pending' },
+      { date:'30/12/2025', invoice:'UKL059692', carrier:'ProCarrier', account:'Swap Commerce', qbGross:2965.35, senvoGross:2965.36, delta:-0.01, deltaType:'rounding', currency:'EUR', _status:'pending' },
+      { date:'30/12/2025', invoice:'UKL059693', carrier:'ProCarrier', account:'Swap Commerce', qbGross:104.57, senvoGross:104.56, delta:0.01, deltaType:'rounding', currency:'EUR', _status:'pending' },
+    ]
+  },
+  {
+    id: 'not-in-senvo',
+    label: 'Not in Senvo',
+    cards: [
+      { label: 'Missing from Senvo', value: '47', sub: 'QB invoices with no Senvo match' },
+      { label: 'Total Unmatched Value', value: '€163,847', sub: 'Sum of missing QB invoices' },
+      { label: 'Oldest Entry', value: '05/12/2025', sub: 'Earliest unmatched invoice' },
+    ],
+    columns: [
+      { key: 'date', label: 'Document Date', sortable: true },
+      { key: 'invoice', label: 'Invoice Number', sortable: true },
+      { key: 'carrier', label: 'Carrier', sortable: true },
+      { key: 'account', label: 'Account', sortable: false },
+      { key: 'qbGross', label: 'QB Total', sortable: true },
+      { key: 'qbNet', label: 'QB Net', sortable: true },
+      { key: 'currency', label: 'Currency', sortable: false },
+      { key: 'type', label: 'Document Type', sortable: false },
+      { key: 'actions', label: 'Actions', sortable: false },
+    ],
+    rows: [
+      { date:'28/01/2026', invoice:'9926795', carrier:'DHL Ecommerce', account:'—', qbGross:22.78, qbNet:18.98, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'31/01/2026', invoice:'9935831', carrier:'DHL Ecommerce', account:'—', qbGross:17.44, qbNet:14.53, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'25/02/2026', invoice:'9961800', carrier:'DHL Ecommerce', account:'—', qbGross:8.15, qbNet:6.79, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'25/03/2026', invoice:'9998048', carrier:'DHL Ecommerce', account:'—', qbGross:8.15, qbNet:6.79, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'25/03/2026', invoice:'AVB1565181', carrier:'DHL', account:'953638253', qbGross:142.65, qbNet:142.65, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'05/12/2025', invoice:'16707275', carrier:'DPD', account:'—', qbGross:1190.64, qbNet:992.20, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'12/12/2025', invoice:'16718006', carrier:'DPD', account:'—', qbGross:2082.10, qbNet:1735.08, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'22/12/2025', invoice:'E762123371', carrier:'Expeditors', account:'—', qbGross:2507.74, qbNet:2507.74, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'19/01/2026', invoice:'E762134976', carrier:'Expeditors', account:'—', qbGross:3443.77, qbNet:3443.77, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'11/02/2026', invoice:'E762147297', carrier:'Expeditors', account:'—', qbGross:2276.22, qbNet:2276.22, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'11/03/2026', invoice:'396104825', carrier:'FedEx', account:'—', qbGross:21041.10, qbNet:21041.10, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'11/03/2026', invoice:'396104823', carrier:'FedEx', account:'—', qbGross:19271.49, qbNet:19271.49, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'11/03/2026', invoice:'396104827', carrier:'FedEx', account:'—', qbGross:8933.82, qbNet:8933.82, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'20/03/2026', invoice:'396154076', carrier:'FedEx', account:'—', qbGross:15477.83, qbNet:15477.83, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'28/02/2026', invoice:'14031', carrier:'InPost', account:'—', qbGross:22663.31, qbNet:22663.31, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'31/12/2025', invoice:'41SI228933', carrier:'Parcelhub', account:'—', qbGross:2983.42, qbNet:2983.42, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'24/12/2025', invoice:'9074867531', carrier:'Royal Mail', account:'—', qbGross:946.70, qbNet:946.70, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'26/01/2026', invoice:'9075100360', carrier:'Royal Mail', account:'—', qbGross:1369.20, qbNet:1369.20, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'24/03/2026', invoice:'9075522889', carrier:'Royal Mail', account:'—', qbGross:1143.41, qbNet:1143.41, currency:'EUR', type:'Invoice', _status:'pending' },
+      { date:'18/03/2026', invoice:'26031539', carrier:'DPD - NL', account:'—', qbGross:2392.67, qbNet:1994.00, currency:'EUR', type:'Invoice', _status:'pending' },
+    ]
+  },
+  {
+    id: 'not-in-qb',
+    label: 'Not in QuickBooks',
+    cards: [
+      { label: 'Missing from QuickBooks', value: '312', sub: 'Senvo invoices with no QB match' },
+      { label: 'Total Unmatched Value', value: '€89,235', sub: 'Sum of missing Senvo invoices' },
+      { label: 'Oldest Entry', value: '02/12/2025', sub: 'Earliest unmatched invoice' },
+    ],
+    columns: [
+      { key: 'date', label: 'Document Date', sortable: true },
+      { key: 'invoice', label: 'Invoice Number', sortable: true },
+      { key: 'carrier', label: 'Carrier', sortable: true },
+      { key: 'account', label: 'Account', sortable: false },
+      { key: 'totalCharge', label: 'Senvo Total', sortable: true },
+      { key: 'netAmount', label: 'Senvo Net', sortable: true },
+      { key: 'currency', label: 'Currency', sortable: false },
+      { key: 'type', label: 'Document Type', sortable: false },
+      { key: 'shipments', label: 'Shipments', sortable: true },
+      { key: 'actions', label: 'Actions', sortable: false },
+    ],
+    rows: [
+      { date:'02/12/2025', invoice:'4199635', carrier:'UPS', account:'X500Y8', totalCharge:-16.54, netAmount:-16.54, currency:'EUR', type:'Credit Note', shipments:1, _status:'pending' },
+      { date:'02/12/2025', invoice:'65598069', carrier:'UPS', account:'X500Y8', totalCharge:29.11, netAmount:29.11, currency:'EUR', type:'Invoice', shipments:1, _status:'pending' },
+      { date:'02/12/2025', invoice:'65598181', carrier:'UPS', account:'X500Y8', totalCharge:67.39, netAmount:67.39, currency:'EUR', type:'Invoice', shipments:2, _status:'pending' },
+      { date:'02/12/2025', invoice:'65597637', carrier:'UPS', account:'X500Y8', totalCharge:25.88, netAmount:25.88, currency:'EUR', type:'Invoice', shipments:1, _status:'pending' },
+      { date:'02/12/2025', invoice:'65597714', carrier:'UPS', account:'X500Y8', totalCharge:50.80, netAmount:50.80, currency:'EUR', type:'Invoice', shipments:2, _status:'pending' },
+      { date:'02/12/2025', invoice:'65597624', carrier:'UPS', account:'X500Y8', totalCharge:34.93, netAmount:34.93, currency:'EUR', type:'Invoice', shipments:1, _status:'pending' },
+      { date:'02/12/2025', invoice:'65597460', carrier:'UPS', account:'X500Y8', totalCharge:22.40, netAmount:22.40, currency:'EUR', type:'Invoice', shipments:1, _status:'pending' },
+      { date:'02/12/2025', invoice:'65596818', carrier:'UPS', account:'X500Y8', totalCharge:24.30, netAmount:24.30, currency:'EUR', type:'Invoice', shipments:1, _status:'pending' },
+      { date:'02/12/2025', invoice:'65597317', carrier:'UPS', account:'X500Y8', totalCharge:82.82, netAmount:82.82, currency:'EUR', type:'Invoice', shipments:3, _status:'pending' },
+      { date:'02/12/2025', invoice:'65596825', carrier:'UPS', account:'X500Y8', totalCharge:41.47, netAmount:41.47, currency:'EUR', type:'Invoice', shipments:2, _status:'pending' },
+      { date:'05/12/2025', invoice:'AVB1024393', carrier:'DHL', account:'953638253', totalCharge:115.27, netAmount:115.27, currency:'EUR', type:'Invoice', shipments:3, _status:'pending' },
+      { date:'05/12/2025', invoice:'LONIR03550353', carrier:'DHL', account:'953638253', totalCharge:3588.72, netAmount:0, currency:'EUR', type:'Invoice', shipments:148, _status:'pending' },
+      { date:'05/12/2025', invoice:'LONIR03550352', carrier:'DHL', account:'953638253', totalCharge:12281.15, netAmount:12281.15, currency:'EUR', type:'Invoice', shipments:412, _status:'pending' },
+      { date:'05/12/2025', invoice:'LONR009634681', carrier:'DHL', account:'953638253', totalCharge:28.87, netAmount:28.87, currency:'EUR', type:'Invoice', shipments:1, _status:'pending' },
+      { date:'01/12/2025', invoice:'UKL057476', carrier:'ProCarrier', account:'Swap Sub 500', totalCharge:9.75, netAmount:9.75, currency:'EUR', type:'Invoice', shipments:1, _status:'pending' },
+    ]
+  }
+];
+
+let currentTab = 0;
+let currentPage = 1;
+const PAGE_SIZE = 15;
+let filteredRows = [];
+let openDropdown = null;
+
+// ──────────────────────────────────────────────
+// CARRIER HELPERS
+// ──────────────────────────────────────────────
+function getCarrierClass(carrier) {
+  const c = carrier.toLowerCase();
+  if (c.includes('dhl ecom') || c.includes('dhlecom')) return 'carrier-dhlecom';
+  if (c.includes('dhl')) return 'carrier-dhl';
+  if (c.includes('fedex') || c.includes('fed ex')) return 'carrier-fedex';
+  if (c.includes('ups')) return 'carrier-ups';
+  if (c.includes('dpd - nl') || c.includes('dpd-nl')) return 'carrier-dpd';
+  if (c.includes('dpd')) return 'carrier-dpd';
+  if (c.includes('royal mail')) return 'carrier-royalmail';
+  if (c.includes('gls')) return 'carrier-gls';
+  if (c.includes('procarrier') || c.includes('pro-carrier') || c.includes('pro carrier')) return 'carrier-procarrier';
+  if (c.includes('easypost')) return 'carrier-easypost';
+  if (c.includes('expeditor')) return 'carrier-expeditors';
+  if (c.includes('inpost')) return 'carrier-inpost';
+  if (c.includes('parcelhub')) return 'carrier-parcelhub';
+  return 'carrier-default';
+}
+
+function carrierBadge(carrier) {
+  const cls = getCarrierClass(carrier);
+  const label = carrier.length > 10 ? carrier.replace('Ecommerce','Ecom').replace('ProCarrier','ProC') : carrier;
+  return `<span class="carrier-badge ${cls}">${label}</span>`;
+}
+
+function fmt(val, currency) {
+  if (val === null || val === undefined) return '—';
+  const sym = currency === 'USD' ? '$' : '€';
+  return sym + Math.abs(val).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function fmtDelta(delta, currency) {
+  if (delta === 0) return '<span style="color:var(--slate-400)">±0.00</span>';
+  const sym = currency === 'USD' ? '$' : '€';
+  const abs = Math.abs(delta).toFixed(2);
+  const cls = Math.abs(delta) < 1 ? 'delta-tiny' : delta > 0 ? 'delta-positive' : 'delta-negative';
+  const sign = delta > 0 ? '+' : '−';
+  return `<span class="${cls}">${sign}${sym}${abs}</span>`;
+}
+
+// ──────────────────────────────────────────────
+// RENDER
+// ──────────────────────────────────────────────
+function switchTab(i) {
+  currentTab = i;
+  currentPage = 1;
+  document.getElementById('search-input').value = '';
+  document.querySelectorAll('.tab-btn').forEach((b,j) => b.classList.toggle('active', j === i));
+  renderCards();
+  filterTable();
+}
+
+function renderCards() {
+  const { cards } = TABS[currentTab];
+  document.getElementById('summary-cards').innerHTML = cards.map(c => `
+    <div class="card">
+      <div class="card-label">${c.label}</div>
+      <div class="card-value">${c.value}</div>
+      <div class="card-sub">${c.sub}</div>
+    </div>
+  `).join('');
+}
+
+function filterTable() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const tab = TABS[currentTab];
+  filteredRows = tab.rows.filter(r => {
+    if (!q) return true;
+    return Object.values(r).some(v => String(v).toLowerCase().includes(q));
+  });
+  currentPage = 1;
+  renderTable();
+}
+
+function renderTable() {
+  const tab = TABS[currentTab];
+  const thead = document.getElementById('table-head');
+  const tbody = document.getElementById('table-body');
+
+  // Headers
+  thead.innerHTML = '<tr>' + tab.columns.map(col =>
+    col.key === '_settings'
+      ? `<th class="col-settings"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></th>`
+      : `<th>${col.label}${col.sortable ? ' <span style="color:var(--slate-400);font-size:10px">↕</span>' : ''}</th>`
+  ).join('') + '</tr>';
+
+  // Paginated rows
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageRows = filteredRows.slice(start, start + PAGE_SIZE);
+
+  if (pageRows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="${tab.columns.length}" class="no-data">No records found.</td></tr>`;
+  } else {
+    tbody.innerHTML = pageRows.map((row, idx) => {
+      const rowId = start + idx;
+      return '<tr>' + tab.columns.map(col => renderCell(col.key, row, rowId)).join('') + '</tr>';
+    }).join('');
+  }
+
+  renderPagination();
+}
+
+function renderCell(key, row, rowId) {
+  switch(key) {
+    case 'date': return `<td style="white-space:nowrap;color:var(--slate-700)">${row.date}</td>`;
+    case 'invoice':
+      return `<td>
+        <div class="badge-table-icon">
+          <span class="text-mono" style="font-weight:600;color:var(--slate-900)">${row.invoice}</span>
+          <button class="icon-btn" title="Open" onclick="showToast('Opening invoice ${row.invoice}')">
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </button>
+        </div>
+      </td>`;
+    case 'carrier': return `<td>${carrierBadge(row.carrier)}</td>`;
+    case 'account': return `<td style="color:var(--slate-600);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${row.account}</td>`;
+    case 'type': return `<td style="color:var(--slate-600)">${row.type}</td>`;
+    case 'qbNet': return `<td class="amount-col">${fmt(row.qbNet, row.currency)}</td>`;
+    case 'qbGross': return `<td class="amount-col">${fmt(row.qbGross, row.currency)}</td>`;
+    case 'senvoGross': return `<td class="amount-col">${row.senvoGross === 0 ? '<span style="color:var(--slate-400)">—</span>' : fmt(row.senvoGross, row.currency)}</td>`;
+    case 'delta': return `<td>${fmtDelta(row.delta, row.currency)}</td>`;
+    case 'deltaType': {
+      const cls = row.deltaType === 'rounding' ? 'status-accepted' : 'status-discrepancy';
+      const label = row.deltaType === 'rounding' ? 'Rounding' : 'Missing Amount';
+      return `<td><span class="status-badge ${cls}">${label}</span></td>`;
+    }
+    case 'totalCharge': return `<td class="amount-col">${fmt(row.totalCharge, row.currency)}</td>`;
+    case 'netAmount': return `<td class="amount-col">${fmt(row.netAmount, row.currency)}</td>`;
+    case 'currency': return `<td style="color:var(--slate-500);font-weight:600;font-size:12px">${row.currency}</td>`;
+    case 'shipments': return `<td style="color:var(--slate-700)">${row.shipments ?? '—'}</td>`;
+    case 'status':
+      return `<td><span class="status-badge status-matched">✓ Matched</span></td>`;
+    case 'processedAt': return `<td style="color:var(--slate-500)">${row.processedAt}</td>`;
+    case '_settings':
+      return `<td class="col-settings">
+        <button class="external-link-btn" onclick="showToast('Opening invoice ${row.invoice}')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </button>
+      </td>`;
+    case 'actions':
+      return `<td>${renderActions(row, rowId)}</td>`;
+    default: return `<td>—</td>`;
+  }
+}
+
+function renderActions(row, rowId) {
+  const tabId = TABS[currentTab].id;
+
+  if (row._status === 'accepted') {
+    return `<span class="status-badge status-accepted">✓ Resolved</span>`;
+  }
+
+  if (tabId === 'discrepancy') {
+    const isRounding = row.deltaType === 'rounding';
+    return `
+      <div class="action-wrap">
+        ${isRounding
+          ? `<button class="btn-action btn-accept" onclick="openModal(${rowId}, 'accept-rounding')">Accept Rounding</button>`
+          : `<button class="btn-action btn-upload" onclick="openModal(${rowId}, 'update-senvo')">Update Senvo</button>`
+        }
+        <div class="dropdown-wrap">
+          <button class="btn-more" onclick="toggleDropdown(event, 'dd-${rowId}')">···</button>
+          <div class="dropdown-menu" id="dd-${rowId}">
+            <div class="dropdown-item" onclick="openModal(${rowId}, 'accept-rounding')">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Accept Discrepancy
+            </div>
+            <div class="dropdown-item" onclick="openModal(${rowId}, 'request-correction')">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Request QB Correction
+            </div>
+            <div class="dropdown-item" onclick="openModal(${rowId}, 'add-note')">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Add Note
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item danger" onclick="openModal(${rowId}, 'flag-review')">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+              Flag for Review
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  if (tabId === 'not-in-senvo') {
+    return `
+      <div class="action-wrap">
+        <button class="btn-action btn-upload" onclick="openModal(${rowId}, 'upload-to-senvo')">Upload to Senvo</button>
+        <div class="dropdown-wrap">
+          <button class="btn-more" onclick="toggleDropdown(event, 'dd-${rowId}')">···</button>
+          <div class="dropdown-menu" id="dd-${rowId}">
+            <div class="dropdown-item" onclick="openModal(${rowId}, 'upload-to-senvo')">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload to Senvo
+            </div>
+            <div class="dropdown-item" onclick="openModal(${rowId}, 'exclude')">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+              Mark as Excluded
+            </div>
+            <div class="dropdown-item danger" onclick="openModal(${rowId}, 'flag-review')">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+              Flag for Review
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  if (tabId === 'not-in-qb') {
+    return `
+      <div class="action-wrap">
+        <button class="btn-action btn-warn" onclick="openModal(${rowId}, 'create-qb-entry')">Create QB Entry</button>
+        <div class="dropdown-wrap">
+          <button class="btn-more" onclick="toggleDropdown(event, 'dd-${rowId}')">···</button>
+          <div class="dropdown-menu" id="dd-${rowId}">
+            <div class="dropdown-item" onclick="openModal(${rowId}, 'create-qb-entry')">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Create QB Entry
+            </div>
+            <div class="dropdown-item" onclick="openModal(${rowId}, 'exclude')">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+              Mark as Excluded
+            </div>
+            <div class="dropdown-item danger" onclick="openModal(${rowId}, 'flag-review')">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+              Flag for Review
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+  return '—';
+}
+
+function renderPagination() {
+  const total = filteredRows.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const start = (currentPage - 1) * PAGE_SIZE + 1;
+  const end = Math.min(currentPage * PAGE_SIZE, total);
+
+  let pages = '';
+  const range = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) range.push(i);
+    else if (range[range.length-1] !== '…') range.push('…');
+  }
+  pages = range.map(p =>
+    p === '…'
+      ? `<span style="padding:0 4px;color:var(--slate-400)">…</span>`
+      : `<button class="page-btn${p === currentPage ? ' active' : ''}" onclick="gotoPage(${p})">${p}</button>`
+  ).join('');
+
+  document.getElementById('pagination').innerHTML = `
+    <div class="page-info">Showing ${total === 0 ? 0 : start}–${end} of ${total} results</div>
+    <div class="page-controls">
+      <button class="page-btn" onclick="gotoPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>
+      ${pages}
+      <button class="page-btn" onclick="gotoPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>›</button>
+    </div>
+  `;
+}
+
+function gotoPage(p) {
+  const total = filteredRows.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (p < 1 || p > totalPages) return;
+  currentPage = p;
+  renderTable();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ──────────────────────────────────────────────
+// DROPDOWN
+// ──────────────────────────────────────────────
+function toggleDropdown(e, id) {
+  e.stopPropagation();
+  const menu = document.getElementById(id);
+  if (!menu) return;
+  const isOpen = menu.classList.contains('open');
+  closeAllDropdowns();
+  if (!isOpen) {
+    menu.classList.add('open');
+    openDropdown = menu;
+  }
+}
+
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown-menu.open').forEach(m => m.classList.remove('open'));
+  openDropdown = null;
+}
+
+document.addEventListener('click', closeAllDropdowns);
+
+// ──────────────────────────────────────────────
+// MODAL
+// ──────────────────────────────────────────────
+function openModal(rowId, action) {
+  closeAllDropdowns();
+  const tab = TABS[currentTab];
+  const row = filteredRows[rowId];
+  if (!row) return;
+
+  const overlay = document.getElementById('modal-overlay');
+  const titleEl = document.getElementById('modal-title');
+  const bodyEl = document.getElementById('modal-body');
+
+  const details = [
+    { k: 'Invoice Number', v: row.invoice },
+    { k: 'Carrier', v: carrierBadge(row.carrier) },
+    { k: 'Date', v: row.date },
+    { k: 'Currency', v: row.currency },
+  ];
+
+  if (action === 'accept-rounding' || action === 'accept-discrepancy') {
+    titleEl.textContent = 'Accept Discrepancy';
+    details.push(
+      { k: 'QB Total', v: fmt(row.qbGross, row.currency) },
+      { k: 'Senvo Total', v: row.senvoGross === 0 ? '—' : fmt(row.senvoGross, row.currency) },
+      { k: 'Delta', v: fmtDelta(row.delta, row.currency) }
+    );
+    bodyEl.innerHTML = renderDetailRows(details) + `
+      <div class="modal-note">
+        <p class="modal-note-text">⚠ Accepting this discrepancy will mark the invoice as reconciled. The delta of ${fmtDelta(row.delta, row.currency)} will be recorded in the audit log.</p>
+      </div>
+      <div class="modal-actions-group">
+        <button class="modal-action-btn success" onclick="resolveRow(${rowId},'Discrepancy accepted and marked as resolved.')">
+          ✓ Accept &amp; Mark as Resolved
+        </button>
+        <button class="modal-action-btn secondary" onclick="closeModal()">Cancel</button>
+      </div>`;
+  } else if (action === 'update-senvo') {
+    titleEl.textContent = 'Update Senvo Amount';
+    details.push(
+      { k: 'QB Total', v: fmt(row.qbGross, row.currency) },
+      { k: 'Senvo Total', v: row.senvoGross === 0 ? '—' : fmt(row.senvoGross, row.currency) },
+      { k: 'Delta', v: fmtDelta(row.delta, row.currency) }
+    );
+    bodyEl.innerHTML = renderDetailRows(details) + `
+      <div class="modal-actions-group" style="margin-top:16px">
+        <button class="modal-action-btn primary" onclick="resolveRow(${rowId},'Senvo amount update requested.')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Update Senvo to Match QB (${fmt(row.qbGross, row.currency)})
+        </button>
+        <button class="modal-action-btn success" onclick="resolveRow(${rowId},'Discrepancy accepted.')">
+          ✓ Accept Discrepancy As-Is
+        </button>
+        <button class="modal-action-btn secondary" onclick="closeModal()">Cancel</button>
+      </div>`;
+  } else if (action === 'request-correction') {
+    titleEl.textContent = 'Request QB Correction';
+    details.push({ k: 'QB Total', v: fmt(row.qbGross, row.currency) }, { k: 'Senvo Total', v: fmt(row.senvoGross, row.currency) }, { k: 'Delta', v: fmtDelta(row.delta, row.currency) });
+    bodyEl.innerHTML = renderDetailRows(details) + `
+      <div class="modal-actions-group" style="margin-top:16px">
+        <button class="modal-action-btn primary" onclick="resolveRow(${rowId},'QB correction request sent.')">
+          Send Correction Request to QB Admin
+        </button>
+        <button class="modal-action-btn secondary" onclick="closeModal()">Cancel</button>
+      </div>`;
+  } else if (action === 'upload-to-senvo') {
+    titleEl.textContent = 'Upload Invoice to Senvo';
+    details.push({ k: 'QB Total', v: fmt(row.qbGross, row.currency) }, { k: 'QB Net', v: fmt(row.qbNet, row.currency) }, { k: 'Document Type', v: row.type });
+    bodyEl.innerHTML = renderDetailRows(details) + `
+      <div class="modal-note"><p class="modal-note-text">This invoice exists in QuickBooks but has no matching record in Senvo. Uploading will create a corresponding Senvo cost document.</p></div>
+      <div class="modal-actions-group">
+        <button class="modal-action-btn primary" onclick="resolveRow(${rowId},'Invoice uploaded to Senvo successfully.')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload to Senvo
+        </button>
+        <button class="modal-action-btn secondary" onclick="closeModal()">Cancel</button>
+      </div>`;
+  } else if (action === 'create-qb-entry') {
+    titleEl.textContent = 'Create QuickBooks Entry';
+    details.push({ k: 'Senvo Total', v: fmt(row.totalCharge, row.currency) }, { k: 'Senvo Net', v: fmt(row.netAmount, row.currency) }, { k: 'Document Type', v: row.type });
+    bodyEl.innerHTML = renderDetailRows(details) + `
+      <div class="modal-note"><p class="modal-note-text">This invoice exists in Senvo but has no matching record in QuickBooks. Creating a QB entry will push this invoice into QuickBooks via the API.</p></div>
+      <div class="modal-actions-group">
+        <button class="modal-action-btn primary" onclick="resolveRow(${rowId},'QB entry created successfully.')">
+          Create QB Entry (${fmt(row.totalCharge, row.currency)})
+        </button>
+        <button class="modal-action-btn secondary" onclick="closeModal()">Cancel</button>
+      </div>`;
+  } else if (action === 'exclude') {
+    titleEl.textContent = 'Mark as Excluded';
+    bodyEl.innerHTML = renderDetailRows(details) + `
+      <div class="modal-note"><p class="modal-note-text">Excluding this invoice will remove it from reconciliation reports. This is useful for invoices that are intentionally handled outside the normal workflow.</p></div>
+      <div class="modal-actions-group">
+        <button class="modal-action-btn danger" onclick="resolveRow(${rowId},'Invoice marked as excluded.')">
+          Mark as Excluded
+        </button>
+        <button class="modal-action-btn secondary" onclick="closeModal()">Cancel</button>
+      </div>`;
+  } else if (action === 'flag-review') {
+    titleEl.textContent = 'Flag for Manual Review';
+    bodyEl.innerHTML = renderDetailRows(details) + `
+      <div class="modal-note"><p class="modal-note-text">Flagging this invoice will notify the finance team and create a review task. The invoice will appear in the pending reviews queue.</p></div>
+      <div class="modal-actions-group">
+        <button class="modal-action-btn danger" onclick="resolveRow(${rowId},'Invoice flagged for manual review.')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          Flag for Review
+        </button>
+        <button class="modal-action-btn secondary" onclick="closeModal()">Cancel</button>
+      </div>`;
+  } else if (action === 'add-note') {
+    titleEl.textContent = 'Add Note';
+    bodyEl.innerHTML = renderDetailRows(details) + `
+      <div style="margin-top:16px">
+        <label style="font-size:12px;font-weight:600;color:var(--slate-600);display:block;margin-bottom:6px">Note</label>
+        <textarea id="note-input" style="width:100%;border:1px solid var(--slate-200);border-radius:6px;padding:10px;font-family:var(--font);font-size:13px;resize:vertical;min-height:80px;outline:none;color:var(--slate-900)" placeholder="Enter a note about this discrepancy…" onfocus="this.style.borderColor='var(--blue-700)'"></textarea>
+      </div>
+      <div class="modal-actions-group">
+        <button class="modal-action-btn primary" onclick="resolveRow(${rowId},'Note saved.')">Save Note</button>
+        <button class="modal-action-btn secondary" onclick="closeModal()">Cancel</button>
+      </div>`;
+  }
+
+  overlay.classList.add('open');
+}
+
+function renderDetailRows(details) {
+  return details.map(d => `
+    <div class="modal-detail-row">
+      <span class="modal-detail-key">${d.k}</span>
+      <span class="modal-detail-val">${d.v}</span>
+    </div>
+  `).join('');
+}
+
+function resolveRow(rowId, msg) {
+  filteredRows[rowId]._status = 'accepted';
+  closeModal();
+  showToast(msg, 'success');
+  renderTable();
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ──────────────────────────────────────────────
+// TOAST
+// ──────────────────────────────────────────────
+function showToast(msg, type = '') {
+  const wrap = document.getElementById('toast-wrap');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icons = { success: '✓', warning: '⚠' };
+  const icon = icons[type] || 'ℹ';
+  toast.innerHTML = `<span>${icon}</span> ${msg}`;
+  wrap.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s'; }, 2800);
+  setTimeout(() => toast.remove(), 3100);
+}
+
+// ──────────────────────────────────────────────
+// INIT
+// ──────────────────────────────────────────────
+switchTab(0);
+</script>
+</body>
+</html>

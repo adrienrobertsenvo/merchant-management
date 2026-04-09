@@ -81,8 +81,6 @@ export default function HierarchicalMatrix({
     return result;
   }, [activeEntities, search]);
 
-  const carrierIds = carrierFilter ? [carrierFilter as CarrierId] : CARRIER_IDS;
-
   const sections = useMemo((): GroupSection[] => {
     const assignedMerchantIds = new Set<string>();
 

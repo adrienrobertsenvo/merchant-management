@@ -20,12 +20,13 @@ const COLORS = {
   marginLine: '#f59e0b',
 };
 
-const euroKLabel = (value: number): string => {
-  if (value === 0) return '€0k';
-  return `€${(value / 1000).toFixed(1)}k`;
+const euroKLabel = (value: unknown): string => {
+  const v = typeof value === 'number' ? value : 0;
+  if (v === 0) return '€0k';
+  return `€${(v / 1000).toFixed(1)}k`;
 };
 
-const pctLabel = (value: number): string => `${value}%`;
+const pctLabel = (value: unknown): string => `${value ?? 0}%`;
 
 const MonthlyMarginChart = () => {
   return (

@@ -172,7 +172,7 @@ export default function CostTransparencyTab({ cutoff, filters }: CostTransparenc
             <Tooltip
               contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e8ebf0' }}
               labelStyle={{ fontWeight: 600 }}
-              formatter={(value: number, name: string) => [`€${value.toLocaleString()}`, COST_LABELS[name] ?? name]}
+              formatter={(value: unknown, name: string) => [`€${(value as number).toLocaleString()}`, COST_LABELS[name] ?? name]}
             />
             <Legend verticalAlign="bottom" height={28} formatter={(value: string) => (
               <span style={{ fontSize: 11, color: '#6b7280' }}>{COST_LABELS[value] ?? value}</span>
@@ -200,7 +200,7 @@ export default function CostTransparencyTab({ cutoff, filters }: CostTransparenc
               <Tooltip
                 contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e8ebf0' }}
                 labelStyle={{ fontWeight: 600 }}
-                formatter={(value: number, name: string) => [`€${value.toLocaleString()}`, COST_LABELS[name] ?? name]}
+                formatter={(value: unknown, name: string) => [`€${(value as number).toLocaleString()}`, COST_LABELS[name] ?? name]}
               />
               <Legend verticalAlign="bottom" height={28} formatter={(value: string) => (
                 <span style={{ fontSize: 11, color: '#6b7280' }}>{COST_LABELS[value] ?? value}</span>
@@ -273,7 +273,7 @@ export default function CostTransparencyTab({ cutoff, filters }: CostTransparenc
             <Tooltip
               contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e8ebf0' }}
               labelStyle={{ fontWeight: 600 }}
-              formatter={(value: number) => [`€${value.toLocaleString()}`]}
+              formatter={(value: unknown) => [`€${(value as number).toLocaleString()}`]}
             />
             <Legend verticalAlign="bottom" height={28} formatter={(value: string) => (
               <span style={{ fontSize: 11, color: '#6b7280' }}>{value}</span>

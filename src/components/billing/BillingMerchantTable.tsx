@@ -15,7 +15,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { DataGrid, type GridColDef, type GridRowSelectionModel, type GridRowId } from '@mui/x-data-grid';
-import { mockMerchantBillingSummaries } from '../../data/mockBillingEngine';
+import { mockMerchantBillingSummaries, type MerchantBillingSummary } from '../../data/mockBillingEngine';
 
 export type AggregationMethod = 'shipment' | 'invoice';
 
@@ -65,7 +65,7 @@ export default function BillingMerchantTable({ onMerchantClick }: BillingMerchan
         merchantName: m.merchantName,
         country: m.country,
         groupName: m.groupName,
-        count: aggregation === 'shipment' ? stats.shipmentCount : (m.invoiceDateStats.invoiceCount),
+        count: aggregation === 'shipment' ? m.shipmentDateStats.shipmentCount : m.invoiceDateStats.invoiceCount,
         totalBuying: stats.totalBuyingCost,
         totalSelling: stats.totalSellingCost,
         margin: stats.totalSellingCost - stats.totalBuyingCost,
